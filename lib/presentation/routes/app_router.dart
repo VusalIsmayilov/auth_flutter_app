@@ -7,6 +7,7 @@ import '../pages/auth/forgot_password_page.dart';
 import '../pages/auth/reset_password_page.dart';
 import '../pages/home/home_page.dart';
 import '../pages/common/splash_page.dart';
+import '../pages/user/profile_page.dart';
 import '../providers/providers.dart';
 import '../../core/constants/app_constants.dart';
 import 'role_based_route.dart';
@@ -147,20 +148,6 @@ bool _isAuthRoute(String location) {
   return authRoutes.any((route) => location.startsWith(route));
 }
 
-// Placeholder ProfilePage
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
-      body: const Center(
-        child: Text('Profile Page - Coming Soon'),
-      ),
-    );
-  }
-}
 
 // Placeholder Admin Pages
 class AdminUsersPage extends StatelessWidget {

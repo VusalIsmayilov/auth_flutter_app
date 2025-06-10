@@ -8,6 +8,7 @@ import '../../domain/usecases/auth/logout_usecase.dart';
 import '../../domain/usecases/auth/register_usecase.dart';
 import '../../domain/usecases/auth/refresh_token_usecase.dart';
 import '../../domain/usecases/user/get_user_profile_usecase.dart';
+import '../../domain/usecases/user/update_profile_usecase.dart';
 import '../../domain/usecases/auth/forgot_password_usecase.dart';
 import '../../services/biometric_service.dart';
 
@@ -61,6 +62,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final LogoutUseCase _logoutUseCase;
   final RefreshTokenUseCase _refreshTokenUseCase;
   final GetUserProfileUseCase _getUserProfileUseCase;
+  final UpdateProfileUseCase _updateProfileUseCase;
   final ForgotPasswordUseCase _forgotPasswordUseCase;
   final ResetPasswordUseCase _resetPasswordUseCase;
   final BiometricService _biometricService;
@@ -77,6 +79,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required LogoutUseCase logoutUseCase,
     required RefreshTokenUseCase refreshTokenUseCase,
     required GetUserProfileUseCase getUserProfileUseCase,
+    required UpdateProfileUseCase updateProfileUseCase,
     required ForgotPasswordUseCase forgotPasswordUseCase,
     required ResetPasswordUseCase resetPasswordUseCase,
     required BiometricService biometricService,
@@ -86,6 +89,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
        _logoutUseCase = logoutUseCase,
        _refreshTokenUseCase = refreshTokenUseCase,
        _getUserProfileUseCase = getUserProfileUseCase,
+       _updateProfileUseCase = updateProfileUseCase,
        _forgotPasswordUseCase = forgotPasswordUseCase,
        _resetPasswordUseCase = resetPasswordUseCase,
        _biometricService = biometricService,
@@ -262,6 +266,28 @@ class AuthNotifier extends StateNotifier<AuthState> {
       await _loadUserProfile();
     } catch (e) {
       _logger.e('Failed to refresh user profile: $e');
+    }
+  }
+
+  Future<void> updateProfile(Map<String, dynamic> profileData) async {
+    if (state.status != AuthStatus.authenticated) return;
+
+    try {
+      final updatedUser = await _updateProfileUseCase(profileData);
+
+      state = state.copyWith(
+        user: updatedUser,
+        errorMessage: null,
+        fieldErrors: null,
+      );
+
+      _logger.d('Profile updated successfully: ${updatedUser.email}');
+    } on ValidationException catch (e) {
+      _logger.w('Profile update validation error: ${e.message}');
+      rethrow; // Let the UI handle validation errors
+    } catch (e) {
+      _logger.e('Profile update error: $e');
+      rethrow; // Let the UI handle general errors
     }
   }
 

@@ -170,6 +170,7 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final logoutUseCase = ref.watch(logoutUseCaseProvider);
   final refreshTokenUseCase = ref.watch(refreshTokenUseCaseProvider);
   final getUserProfileUseCase = ref.watch(getUserProfileUseCaseProvider);
+  final updateProfileUseCase = ref.watch(updateProfileUseCaseProvider);
   final forgotPasswordUseCase = ref.watch(forgotPasswordUseCaseProvider);
   final resetPasswordUseCase = ref.watch(resetPasswordUseCaseProvider);
   final biometricService = ref.watch(biometricServiceProvider);
@@ -181,6 +182,7 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
     logoutUseCase: logoutUseCase,
     refreshTokenUseCase: refreshTokenUseCase,
     getUserProfileUseCase: getUserProfileUseCase,
+    updateProfileUseCase: updateProfileUseCase,
     forgotPasswordUseCase: forgotPasswordUseCase,
     resetPasswordUseCase: resetPasswordUseCase,
     biometricService: biometricService,

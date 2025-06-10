@@ -321,7 +321,7 @@ class _AdminDashboardPageState extends ConsumerState<AdminDashboardPage> {
     return ListTile(
       leading: CircleAvatar(
         radius: 16,
-        backgroundColor: color.withOpacity(0.1),
+        backgroundColor: color.withValues(alpha: 0.1),
         child: Icon(icon, size: 16, color: color),
       ),
       title: Text(

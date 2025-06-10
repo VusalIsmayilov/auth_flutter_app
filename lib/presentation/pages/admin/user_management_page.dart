@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/role_based/role_guard.dart';
 import '../../widgets/common/loading_overlay.dart';
-import '../../providers/providers.dart';
 
 class UserManagementPage extends ConsumerStatefulWidget {
   const UserManagementPage({super.key});
@@ -163,7 +162,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
             _selectedFilter = value;
           });
         },
-        selectedColor: Colors.indigo.withOpacity(0.2),
+        selectedColor: Colors.indigo.withValues(alpha: 0.2),
         checkmarkColor: Colors.indigo,
       ),
     );
@@ -315,7 +314,7 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isActive ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+        color: isActive ? Colors.green.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
@@ -333,13 +332,13 @@ class _UserManagementPageState extends ConsumerState<UserManagementPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: color.shade700,
+          color: Color.lerp(color, Colors.black, 0.3) ?? color,
           fontSize: 12,
           fontWeight: FontWeight.bold,
         ),

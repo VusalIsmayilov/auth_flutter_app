@@ -326,7 +326,7 @@ class _SecuritySettingsPageState extends ConsumerState<SecuritySettingsPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: enabled ? Colors.green.withAlpha(40) : Colors.grey.withAlpha(40),
+                  color: enabled ? Colors.green.withValues(alpha: 40/255) : Colors.grey.withValues(alpha: 40/255),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -418,7 +418,7 @@ class _SecuritySettingsPageState extends ConsumerState<SecuritySettingsPage> {
         children: [
           CircleAvatar(
             radius: 16,
-            backgroundColor: color.withAlpha(40),
+            backgroundColor: color.withValues(alpha: 40/255),
             child: Icon(icon, size: 16, color: color),
           ),
           const SizedBox(width: 12),
