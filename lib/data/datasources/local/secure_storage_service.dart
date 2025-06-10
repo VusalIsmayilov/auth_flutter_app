@@ -114,4 +114,15 @@ class SecureStorageService {
     final value = await getUserPreference('biometric_enabled');
     return value == 'true';
   }
+
+  /// Delete a user preference from secure storage
+  Future<void> deleteUserPreference(String key) async {
+    await _storage.delete(key: _generateKey('pref_$key'));
+  }
+
+  /// Check if a preference exists
+  Future<bool> hasUserPreference(String key) async {
+    final value = await getUserPreference(key);
+    return value != null && value.isNotEmpty;
+  }
 }

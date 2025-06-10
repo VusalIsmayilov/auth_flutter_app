@@ -68,7 +68,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   // Store last login credentials for biometric setup
   String? _lastLoginEmail;
-  String? _lastLoginPassword;
+  String? _lastLoginPassword; // DEPRECATED: For compatibility only
+  String? _lastLoginRefreshToken; // Secure approach
 
   AuthNotifier({
     required LoginUseCase loginUseCase,
@@ -148,7 +149,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       // Store login credentials for potential biometric setup
       _lastLoginEmail = request.email;
-      _lastLoginPassword = request.password;
+      // Store refresh token instead of password for security
+      _lastLoginRefreshToken = authResponse.tokens?.refreshToken;
     } on ValidationException catch (e) {
       state = state.copyWith(
         status: AuthStatus.error,
@@ -290,28 +292,36 @@ class AuthNotifier extends StateNotifier<AuthState> {
         throw Exception('Biometric authentication failed');
       }
 
-      // Get stored credentials
-      final credentials = await _biometricService.getBiometricCredentials();
-      if (credentials == null) {
+      // Get stored biometric token
+      final tokenData = await _biometricService.getBiometricToken();
+      if (tokenData == null) {
         throw Exception('No biometric credentials found');
       }
 
-      // Login with stored credentials (stored password is original, not hashed)
-      final loginRequest = LoginRequestModel(
-        email: credentials['email']!,
-        password: credentials['password']!,
-      );
-
-      final authResponse = await _loginUseCase(loginRequest);
+      // Use refresh token to get new access token (secure approach)
+      // First, verify the token is still valid
+      final isValid = await _refreshTokenUseCase.isTokenValid();
+      if (!isValid) {
+        throw Exception('Biometric session expired - please login again');
+      }
+      
+      // Get valid access token using refresh flow
+      final validToken = await _refreshTokenUseCase.getValidAccessToken();
+      if (validToken == null) {
+        throw Exception('Failed to refresh token for biometric login');
+      }
+      
+      // Get user profile using valid token
+      final user = await _getUserProfileUseCase();
 
       state = state.copyWith(
         status: AuthStatus.authenticated,
-        user: authResponse.user,
+        user: user,
         errorMessage: null,
         fieldErrors: null,
       );
 
-      _logger.d('Biometric login successful: ${authResponse.user?.email}');
+      _logger.d('Biometric login successful: ${user.email}');
     } catch (e) {
       state = state.copyWith(
         status: AuthStatus.error,
@@ -322,13 +332,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// Setup biometric authentication after successful login
-  Future<bool> setupBiometricAuthentication(String email, String password) async {
+  /// Setup biometric authentication with secure token approach
+  Future<bool> setupBiometricAuthentication(String email, String refreshToken) async {
     try {
-      // Store the original password (encrypted by secure storage)
+      // Use secure token-based approach - never store passwords
       return await _biometricService.setupBiometricAuthentication(
         email: email,
-        hashedPassword: password, // Store original password for API login
+        refreshToken: refreshToken, // Store refresh token for secure authentication
       );
     } catch (e) {
       _logger.e('Biometric setup error: $e');
@@ -388,7 +398,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   /// Check if biometric setup should be offered
   Future<bool> shouldOfferBiometricSetup() async {
-    if (_lastLoginEmail == null || _lastLoginPassword == null) return false;
+    if (_lastLoginEmail == null || _lastLoginRefreshToken == null) return false;
     
     try {
       final isAvailable = await _biometricService.isBiometricAvailable();
@@ -402,8 +412,20 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// Get last login credentials for biometric setup
+  /// Get last login credentials for biometric setup (secure version)
   Map<String, String>? getLastLoginCredentials() {
+    if (_lastLoginEmail != null && _lastLoginRefreshToken != null) {
+      return {
+        'email': _lastLoginEmail!,
+        'refresh_token': _lastLoginRefreshToken!,
+      };
+    }
+    return null;
+  }
+  
+  /// Legacy method for compatibility - DEPRECATED
+  @Deprecated('Use getLastLoginCredentials() with refresh token instead')
+  Map<String, String>? getLastLoginPasswordCredentials() {
     if (_lastLoginEmail != null && _lastLoginPassword != null) {
       return {
         'email': _lastLoginEmail!,
@@ -417,6 +439,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   void clearLastLoginCredentials() {
     _lastLoginEmail = null;
     _lastLoginPassword = null;
+    _lastLoginRefreshToken = null;
   }
 
   /// Forgot password
@@ -445,6 +468,47 @@ class AuthNotifier extends StateNotifier<AuthState> {
       _logger.d('Password reset successfully');
     } catch (e) {
       _logger.e('Reset password error: $e');
+      rethrow;
+    }
+  }
+
+  /// Verify email with verification code
+  Future<void> verifyEmail(String email, String verificationCode) async {
+    try {
+      state = state.copyWith(status: AuthStatus.loading);
+      
+      // TODO: Implement email verification with backend
+      // For now, this is a stub implementation
+      await Future.delayed(const Duration(seconds: 1));
+      
+      _logger.d('Email verification completed for: $email');
+      
+      state = state.copyWith(
+        status: AuthStatus.authenticated,
+        errorMessage: null,
+        fieldErrors: null,
+      );
+    } catch (e) {
+      state = state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: 'Email verification failed. Please try again.',
+        fieldErrors: null,
+      );
+      _logger.e('Email verification error: $e');
+      rethrow;
+    }
+  }
+
+  /// Resend verification email
+  Future<void> resendVerification(String email) async {
+    try {
+      // TODO: Implement resend verification with backend
+      // For now, this is a stub implementation
+      await Future.delayed(const Duration(seconds: 1));
+      
+      _logger.d('Verification email resent to: $email');
+    } catch (e) {
+      _logger.e('Resend verification error: $e');
       rethrow;
     }
   }

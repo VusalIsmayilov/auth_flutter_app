@@ -1,18 +1,23 @@
 import '../../../core/errors/exceptions.dart';
+import '../../../core/security/password_policy.dart';
 import '../../../data/models/auth_response_model.dart';
 import '../../../data/models/login_request_model.dart';
 import '../../repositories/auth_repository.dart';
 import '../../../services/jwt_service.dart';
+import '../../../config/environment_config.dart';
 
 class RegisterUseCase {
   final AuthRepository _authRepository;
   final JwtService _jwtService;
+  final PasswordPolicy _passwordPolicy;
 
   RegisterUseCase({
     required AuthRepository authRepository,
     required JwtService jwtService,
+    PasswordPolicy? passwordPolicy,
   })  : _authRepository = authRepository,
-        _jwtService = jwtService;
+        _jwtService = jwtService,
+        _passwordPolicy = passwordPolicy ?? PasswordPolicy.forEnvironment(EnvironmentService.config.environment.name);
 
   Future<AuthResponseModel> call(RegisterRequestModel request) async {
     try {
@@ -41,13 +46,22 @@ class RegisterUseCase {
       errors['email'] = ['Please enter a valid email address'];
     }
 
-    // Password validation
+    // Comprehensive password validation using password policy
     if (request.password.isEmpty) {
       errors['password'] = ['Password is required'];
     } else {
-      final passwordErrors = _validatePassword(request.password);
-      if (passwordErrors.isNotEmpty) {
-        errors['password'] = passwordErrors;
+      final passwordValidation = _passwordPolicy.validatePassword(
+        request.password,
+        userEmail: request.email,
+      );
+      
+      if (!passwordValidation.isValid) {
+        errors['password'] = passwordValidation.errors;
+      }
+      
+      // Add warnings as additional validation notes
+      if (passwordValidation.warnings.isNotEmpty) {
+        errors['password_warnings'] = passwordValidation.warnings;
       }
     }
 
@@ -61,31 +75,8 @@ class RegisterUseCase {
     }
   }
 
-  List<String> _validatePassword(String password) {
-    final errors = <String>[];
-
-    if (password.length < 8) {
-      errors.add('Password must be at least 8 characters long');
-    }
-
-    if (!password.contains(RegExp(r'[A-Z]'))) {
-      errors.add('Password must contain at least one uppercase letter');
-    }
-
-    if (!password.contains(RegExp(r'[a-z]'))) {
-      errors.add('Password must contain at least one lowercase letter');
-    }
-
-    if (!password.contains(RegExp(r'[0-9]'))) {
-      errors.add('Password must contain at least one number');
-    }
-
-    if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-      errors.add('Password must contain at least one special character');
-    }
-
-    return errors;
-  }
+  /// Get password policy instance for external access
+  PasswordPolicy get passwordPolicy => _passwordPolicy;
 
   bool _isValidEmail(String email) {
     final emailRegex = RegExp(
