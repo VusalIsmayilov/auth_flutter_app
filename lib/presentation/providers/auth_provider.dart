@@ -182,12 +182,26 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> register(RegisterRequestModel request) async {
     try {
       state = state.copyWith(status: AuthStatus.loading);
+      _logger.d('Starting registration for: ${request.email}');
 
       final authResponse = await _registerUseCase(request);
+      _logger.d('Registration API call successful');
+      _logger.d('Auth response: ${authResponse.success ? "Success" : "Failed"} - ${authResponse.message}');
 
+      // Backend doesn't return firstName/lastName in registration response
+      // Store these locally and merge with user data until backend is fixed
+      var user = authResponse.user;
+      if (user != null && (request.firstName != null || request.lastName != null)) {
+        user = user.copyWith(
+          firstName: request.firstName,
+          lastName: request.lastName,
+        );
+        _logger.d('Enhanced user with firstName/lastName from registration: ${request.firstName} ${request.lastName}');
+      }
+      
       state = state.copyWith(
         status: AuthStatus.authenticated,
-        user: authResponse.user,
+        user: user,
         errorMessage: null,
         fieldErrors: null,
       );
@@ -200,6 +214,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         fieldErrors: e.fieldErrors,
       );
       _logger.w('Registration validation error: ${e.message}');
+      _logger.d('Field errors: ${e.fieldErrors}');
     } on ServerException catch (e) {
       state = state.copyWith(
         status: AuthStatus.error,
@@ -245,7 +260,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> _loadUserProfile() async {
     try {
+      _logger.d('Attempting to load user profile...');
       final user = await _getUserProfileUseCase();
+      _logger.d('User profile loaded successfully: ${user.email}');
 
       state = state.copyWith(
         status: AuthStatus.authenticated,
@@ -253,8 +270,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
         errorMessage: null,
         fieldErrors: null,
       );
+    } on AuthenticationException catch (e) {
+      _logger.w('Authentication failed while loading profile: ${e.message}');
+      // Don't change auth status on 401 - the user might still be authenticated but token refresh is needed
     } catch (e) {
       _logger.e('Failed to load user profile: $e');
+      _logger.e('Error type: ${e.runtimeType}');
       // Don't change auth status, just log the error
     }
   }
@@ -263,9 +284,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     if (state.status != AuthStatus.authenticated) return;
 
     try {
+      _logger.d('Refreshing user profile...');
       await _loadUserProfile();
     } catch (e) {
-      _logger.e('Failed to refresh user profile: $e');
+      _logger.w('Failed to refresh user profile (this is expected if backend /auth/me is not implemented): $e');
+      // Silently fail - this is expected if backend doesn't have /auth/me endpoint
     }
   }
 
@@ -273,6 +296,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     if (state.status != AuthStatus.authenticated) return;
 
     try {
+      _logger.d('Starting profile update with data: $profileData');
+      
+      // Try to update profile via backend
       final updatedUser = await _updateProfileUseCase(profileData);
 
       state = state.copyWith(
@@ -282,6 +308,32 @@ class AuthNotifier extends StateNotifier<AuthState> {
       );
 
       _logger.d('Profile updated successfully: ${updatedUser.email}');
+    } on ServerException catch (e) {
+      // Handle 404 error specifically (backend endpoint not implemented)
+      if (e.statusCode == 404) {
+        _logger.w('Backend profile update not implemented, applying local update as workaround');
+        
+        // Temporary workaround: Update local state since backend doesn't support profile updates yet
+        if (state.user != null) {
+          final updatedUser = state.user!.copyWith(
+            firstName: profileData['firstName'] as String?,
+            lastName: profileData['lastName'] as String?,
+            phoneNumber: profileData['phoneNumber'] as String?,
+          );
+          
+          state = state.copyWith(
+            user: updatedUser,
+            errorMessage: null,
+            fieldErrors: null,
+          );
+          
+          _logger.d('Profile updated locally: ${updatedUser.displayName}');
+          return; // Success - exit without throwing error
+        }
+      }
+      
+      _logger.e('Profile update server error: ${e.message}');
+      rethrow;
     } on ValidationException catch (e) {
       _logger.w('Profile update validation error: ${e.message}');
       rethrow; // Let the UI handle validation errors

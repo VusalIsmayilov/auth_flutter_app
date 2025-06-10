@@ -23,6 +23,10 @@ mixin _$UserModel {
   int get id => throw _privateConstructorUsedError;
   String? get email => throw _privateConstructorUsedError;
   String? get phoneNumber => throw _privateConstructorUsedError;
+  @JsonKey(name: 'FirstName')
+  String? get firstName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'LastName')
+  String? get lastName => throw _privateConstructorUsedError;
   bool get isEmailVerified => throw _privateConstructorUsedError;
   bool get isPhoneVerified => throw _privateConstructorUsedError;
   String? get currentRole => throw _privateConstructorUsedError;
@@ -50,6 +54,8 @@ abstract class $UserModelCopyWith<$Res> {
       {int id,
       String? email,
       String? phoneNumber,
+      @JsonKey(name: 'FirstName') String? firstName,
+      @JsonKey(name: 'LastName') String? lastName,
       bool isEmailVerified,
       bool isPhoneVerified,
       String? currentRole,
@@ -77,6 +83,8 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? id = null,
     Object? email = freezed,
     Object? phoneNumber = freezed,
+    Object? firstName = freezed,
+    Object? lastName = freezed,
     Object? isEmailVerified = null,
     Object? isPhoneVerified = null,
     Object? currentRole = freezed,
@@ -97,6 +105,14 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
       phoneNumber: freezed == phoneNumber
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
+      firstName: freezed == firstName
+          ? _value.firstName
+          : firstName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastName: freezed == lastName
+          ? _value.lastName
+          : lastName // ignore: cast_nullable_to_non_nullable
               as String?,
       isEmailVerified: null == isEmailVerified
           ? _value.isEmailVerified
@@ -142,6 +158,8 @@ abstract class _$$UserModelImplCopyWith<$Res>
       {int id,
       String? email,
       String? phoneNumber,
+      @JsonKey(name: 'FirstName') String? firstName,
+      @JsonKey(name: 'LastName') String? lastName,
       bool isEmailVerified,
       bool isPhoneVerified,
       String? currentRole,
@@ -167,6 +185,8 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? id = null,
     Object? email = freezed,
     Object? phoneNumber = freezed,
+    Object? firstName = freezed,
+    Object? lastName = freezed,
     Object? isEmailVerified = null,
     Object? isPhoneVerified = null,
     Object? currentRole = freezed,
@@ -187,6 +207,14 @@ class __$$UserModelImplCopyWithImpl<$Res>
       phoneNumber: freezed == phoneNumber
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
+      firstName: freezed == firstName
+          ? _value.firstName
+          : firstName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastName: freezed == lastName
+          ? _value.lastName
+          : lastName // ignore: cast_nullable_to_non_nullable
               as String?,
       isEmailVerified: null == isEmailVerified
           ? _value.isEmailVerified
@@ -227,6 +255,8 @@ class _$UserModelImpl extends _UserModel {
       {required this.id,
       this.email,
       this.phoneNumber,
+      @JsonKey(name: 'FirstName') this.firstName,
+      @JsonKey(name: 'LastName') this.lastName,
       this.isEmailVerified = false,
       this.isPhoneVerified = false,
       this.currentRole,
@@ -245,6 +275,12 @@ class _$UserModelImpl extends _UserModel {
   final String? email;
   @override
   final String? phoneNumber;
+  @override
+  @JsonKey(name: 'FirstName')
+  final String? firstName;
+  @override
+  @JsonKey(name: 'LastName')
+  final String? lastName;
   @override
   @JsonKey()
   final bool isEmailVerified;
@@ -265,7 +301,7 @@ class _$UserModelImpl extends _UserModel {
 
   @override
   String toString() {
-    return 'UserModel(id: $id, email: $email, phoneNumber: $phoneNumber, isEmailVerified: $isEmailVerified, isPhoneVerified: $isPhoneVerified, currentRole: $currentRole, currentRoleDisplayName: $currentRoleDisplayName, createdAt: $createdAt, lastLoginAt: $lastLoginAt, isActive: $isActive)';
+    return 'UserModel(id: $id, email: $email, phoneNumber: $phoneNumber, firstName: $firstName, lastName: $lastName, isEmailVerified: $isEmailVerified, isPhoneVerified: $isPhoneVerified, currentRole: $currentRole, currentRoleDisplayName: $currentRoleDisplayName, createdAt: $createdAt, lastLoginAt: $lastLoginAt, isActive: $isActive)';
   }
 
   @override
@@ -277,6 +313,10 @@ class _$UserModelImpl extends _UserModel {
             (identical(other.email, email) || other.email == email) &&
             (identical(other.phoneNumber, phoneNumber) ||
                 other.phoneNumber == phoneNumber) &&
+            (identical(other.firstName, firstName) ||
+                other.firstName == firstName) &&
+            (identical(other.lastName, lastName) ||
+                other.lastName == lastName) &&
             (identical(other.isEmailVerified, isEmailVerified) ||
                 other.isEmailVerified == isEmailVerified) &&
             (identical(other.isPhoneVerified, isPhoneVerified) ||
@@ -300,6 +340,8 @@ class _$UserModelImpl extends _UserModel {
       id,
       email,
       phoneNumber,
+      firstName,
+      lastName,
       isEmailVerified,
       isPhoneVerified,
       currentRole,
@@ -329,6 +371,8 @@ abstract class _UserModel extends UserModel {
       {required final int id,
       final String? email,
       final String? phoneNumber,
+      @JsonKey(name: 'FirstName') final String? firstName,
+      @JsonKey(name: 'LastName') final String? lastName,
       final bool isEmailVerified,
       final bool isPhoneVerified,
       final String? currentRole,
@@ -347,6 +391,12 @@ abstract class _UserModel extends UserModel {
   String? get email;
   @override
   String? get phoneNumber;
+  @override
+  @JsonKey(name: 'FirstName')
+  String? get firstName;
+  @override
+  @JsonKey(name: 'LastName')
+  String? get lastName;
   @override
   bool get isEmailVerified;
   @override

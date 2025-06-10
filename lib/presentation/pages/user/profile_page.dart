@@ -30,6 +30,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   void initState() {
     super.initState();
     _loadUserProfile();
+    _fetchCompleteProfile();
   }
 
   @override
@@ -44,12 +45,32 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   void _loadUserProfile() {
     final user = ref.read(currentUserProvider);
     if (user != null) {
-      // Extract first and last name from email if not available
-      final nameParts = _extractNameFromEmail(user.email ?? '');
-      _firstNameController.text = nameParts['firstName'] ?? '';
-      _lastNameController.text = nameParts['lastName'] ?? '';
+      // Use actual firstName and lastName from user model, fallback to email extraction if empty
+      String firstName = user.firstName ?? '';
+      String lastName = user.lastName ?? '';
+      
+      // If firstName/lastName are empty, extract from email as fallback
+      if (firstName.isEmpty || lastName.isEmpty) {
+        final nameParts = _extractNameFromEmail(user.email ?? '');
+        firstName = firstName.isEmpty ? (nameParts['firstName'] ?? '') : firstName;
+        lastName = lastName.isEmpty ? (nameParts['lastName'] ?? '') : lastName;
+      }
+      
+      _firstNameController.text = firstName;
+      _lastNameController.text = lastName;
       _emailController.text = user.email ?? '';
       _phoneController.text = user.phoneNumber ?? '';
+    }
+  }
+
+  Future<void> _fetchCompleteProfile() async {
+    try {
+      await ref.read(authProvider.notifier).refreshUserProfile();
+      // Reload the form fields with updated user data
+      _loadUserProfile();
+    } catch (e) {
+      // Silently handle error - user will just see basic info
+      print('Profile fetch failed: $e');
     }
   }
 
@@ -80,6 +101,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         elevation: 2,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/home'),
+          tooltip: 'Back to Home',
+        ),
         actions: [
           if (!_isEditing)
             IconButton(
@@ -540,7 +566,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         'firstName': _firstNameController.text.trim(),
         'lastName': _lastNameController.text.trim(),
         'phoneNumber': _phoneController.text.trim(),
-        if (_avatarUrl != null) 'avatar': _avatarUrl,
       };
 
       // Update profile through auth provider

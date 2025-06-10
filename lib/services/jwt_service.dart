@@ -53,6 +53,7 @@ class JwtService {
   }
 
   Future<String?> getValidAccessToken() async {
+    _logger.d('Getting valid access token...');
     final token = await _storageService.getToken();
 
     if (token == null) {
@@ -60,12 +61,18 @@ class JwtService {
       return null;
     }
 
+    _logger.d('Token found - Access token preview: ${token.accessToken != null ? token.accessToken!.substring(0, 20) : "null"}...');
+    _logger.d('Token expires at: ${token.expiresAt}');
+    _logger.d('Token is expired: ${token.isExpired}');
+
     if (!token.isExpired) {
+      _logger.d('Returning valid access token');
       return token.accessToken;
     }
 
     // Token is expired, attempt refresh
     if (token.isExpiringSoon || token.isExpired) {
+      _logger.d('Token is expired/expiring, attempting refresh...');
       return await _refreshTokenIfNeeded();
     }
 

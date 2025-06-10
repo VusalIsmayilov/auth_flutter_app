@@ -18,18 +18,23 @@ class AuthInterceptor extends Interceptor {
     try {
       // Skip authentication for auth endpoints
       if (_isAuthEndpoint(options.path)) {
+        _logger.d('Skipping auth for endpoint: ${options.path}');
         handler.next(options);
         return;
       }
 
+      _logger.d('Adding auth token for protected endpoint: ${options.path}');
+      
       // Get valid access token (auto-refreshes if needed)
       final accessToken = await _jwtService.getValidAccessToken();
       
-      if (accessToken != null) {
+      if (accessToken != null && accessToken.isNotEmpty) {
         options.headers['Authorization'] = 'Bearer $accessToken';
-        _logger.d('Added Bearer token to request: ${options.path}');
+        _logger.d('Successfully added Bearer token to request: ${options.path}');
+        _logger.d('Token preview: ${accessToken.substring(0, 20)}...');
       } else {
         _logger.w('No valid access token available for: ${options.path}');
+        _logger.w('This will likely result in a 401 error');
       }
 
       handler.next(options);
@@ -173,13 +178,27 @@ class ErrorHandlingInterceptor extends Interceptor {
         switch (statusCode) {
           case 400:
             appException = ValidationException(
-              message: responseData?['message'] ?? 'Invalid request data',
+              message: responseData?['title'] ?? responseData?['message'] ?? 'Invalid request data',
+              fieldErrors: responseData?['errors'] != null 
+                ? Map<String, List<String>>.from(
+                    (responseData!['errors'] as Map<String, dynamic>).map(
+                      (key, value) => MapEntry(
+                        key.toLowerCase(), // Convert to lowercase for consistency
+                        List<String>.from(value as List)
+                      )
+                    )
+                  )
+                : null,
               code: 'VALIDATION_ERROR',
             );
             break;
           case 401:
+            String errorMessage = 'Authentication failed';
+            if (responseData != null && responseData is Map<String, dynamic>) {
+              errorMessage = responseData['message'] ?? errorMessage;
+            }
             appException = AuthenticationException(
-              message: responseData?['message'] ?? 'Authentication failed',
+              message: errorMessage,
               code: 'UNAUTHORIZED',
               statusCode: 401,
             );

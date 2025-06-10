@@ -27,10 +27,19 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
     ref.listen<String?>(authErrorProvider, (previous, next) {
       if (next != null) {
+        final fieldErrors = ref.read(authFieldErrorsProvider);
+        String errorMessage = next;
+        
+        // If we have field errors, show a more helpful message
+        if (fieldErrors != null && fieldErrors.isNotEmpty) {
+          errorMessage = 'Please check the highlighted fields and fix the errors.';
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next),
+            content: Text(errorMessage),
             backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 4),
           ),
         );
       }
@@ -249,7 +258,26 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
   String? _getFieldError(String fieldName) {
     final fieldErrors = ref.watch(authFieldErrorsProvider);
-    return fieldErrors?[fieldName]?.first;
+    if (fieldErrors == null) return null;
+    
+    // Try exact match first
+    if (fieldErrors[fieldName] != null) {
+      return fieldErrors[fieldName]!.first;
+    }
+    
+    // Try field name with _warnings suffix
+    final warningsKey = '${fieldName}_warnings';
+    if (fieldErrors[warningsKey] != null) {
+      return fieldErrors[warningsKey]!.first;
+    }
+    
+    // Try capitalized field name (backend might send PascalCase)
+    final capitalizedKey = fieldName[0].toUpperCase() + fieldName.substring(1);
+    if (fieldErrors[capitalizedKey] != null) {
+      return fieldErrors[capitalizedKey]!.first;
+    }
+    
+    return null;
   }
 
   String? _passwordValidator(String? value) {
@@ -277,15 +305,28 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   }
 
   void _handleRegister() {
+    print('DEBUG: Register button clicked');
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final formData = _formKey.currentState!.value;
+      print('DEBUG: Form validation passed. Form data: $formData');
       
       final registerRequest = RegisterRequestModel(
         email: formData['email'] as String,
         password: formData['password'] as String,
+        firstName: formData['firstName'] as String?,
+        lastName: formData['lastName'] as String?,
+        phoneNumber: formData['phoneNumber'] as String?,
       );
 
+      print('DEBUG: Created RegisterRequestModel: ${registerRequest.email}');
+      print('DEBUG: Calling auth provider register...');
       ref.read(authProvider.notifier).register(registerRequest);
+    } else {
+      print('DEBUG: Form validation failed');
+      final currentState = _formKey.currentState;
+      if (currentState != null) {
+        print('DEBUG: Form errors: ${currentState.errors}');
+      }
     }
   }
 }

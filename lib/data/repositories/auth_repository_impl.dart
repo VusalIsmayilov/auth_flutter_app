@@ -41,6 +41,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<AuthResponseModel> register(RegisterRequestModel request) async {
     try {
+      print('DEBUG: Repository sending registration request: ${request.toJson()}');
       final response = await _apiService.registerEmail(request);
       await _storageService.storeAuthResponse(response);
       if (response.tokens != null) {
@@ -48,12 +49,24 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       return response;
     } on DioException catch (e) {
+      final responseData = e.response?.data;
+      final statusCode = e.response?.statusCode ?? 500;
+      
+      // Handle validation errors (400/422) with field-specific errors
+      if (statusCode == 400 || statusCode == 422) {
+        throw ValidationException(
+          message: responseData?['message'] ?? 'Validation failed',
+          fieldErrors: responseData?['errors'] as Map<String, List<String>>?,
+          code: 'VALIDATION_ERROR',
+        );
+      }
+      
       throw ServerException(
-        message: e.response?.data['message'] ?? 'Registration failed',
-        statusCode: e.response?.statusCode ?? 500,
+        message: responseData?['message'] ?? 'Registration failed: ${e.message}',
+        statusCode: statusCode,
       );
     } catch (e) {
-      throw ServerException(message: 'Unexpected error occurred');
+      throw ServerException(message: 'Unexpected error occurred: $e');
     }
   }
 
@@ -113,14 +126,39 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserModel> updateProfile(Map<String, dynamic> profileData) async {
     try {
-      return await _apiService.updateProfile(profileData);
+      print('DEBUG: Attempting profile update with data: $profileData');
+      final result = await _apiService.updateProfile(profileData);
+      print('DEBUG: Profile update successful: ${result.email}');
+      return result;
     } on DioException catch (e) {
+      print('DEBUG: Profile update failed - Status: ${e.response?.statusCode}, Message: ${e.message}');
+      print('DEBUG: Response data: ${e.response?.data}');
+      
+      // Handle specific 404 error for profile update endpoint
+      if (e.response?.statusCode == 404) {
+        throw ServerException(
+          message: 'Profile update endpoint not found. The backend /user/profile endpoint is not implemented yet.',
+          statusCode: 404,
+        );
+      }
+      
+      // Handle validation errors (400/422)
+      if (e.response?.statusCode == 400 || e.response?.statusCode == 422) {
+        final responseData = e.response?.data;
+        throw ValidationException(
+          message: responseData?['message'] ?? 'Profile validation failed',
+          fieldErrors: responseData?['errors'] as Map<String, List<String>>?,
+          code: 'VALIDATION_ERROR',
+        );
+      }
+      
       throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to update profile',
+        message: e.response?.data?['message'] ?? 'Failed to update profile',
         statusCode: e.response?.statusCode ?? 500,
       );
     } catch (e) {
-      throw ServerException(message: 'Unexpected error occurred');
+      print('DEBUG: Unexpected error in profile update: $e');
+      throw ServerException(message: 'Unexpected error occurred: $e');
     }
   }
 

@@ -9,12 +9,14 @@ import '../pages/home/home_page.dart';
 import '../pages/common/splash_page.dart';
 import '../pages/user/profile_page.dart';
 import '../providers/providers.dart';
+import '../providers/auth_provider.dart';
 import '../../core/constants/app_constants.dart';
 import 'role_based_route.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/splash',
+    refreshListenable: AuthStateListener(ref),
     redirect: (context, state) {
       final isAuthenticated = ref.read(isAuthenticatedProvider);
       final isLoading = ref.read(isLoadingProvider);
@@ -297,5 +299,23 @@ class AdminSystemPage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// Auth state listener for router refresh
+class AuthStateListener extends ChangeNotifier {
+  final Ref _ref;
+  late final ProviderSubscription _authSubscription;
+
+  AuthStateListener(this._ref) {
+    _authSubscription = _ref.listen<AuthState>(authProvider, (previous, next) {
+      notifyListeners();
+    });
+  }
+
+  @override
+  void dispose() {
+    _authSubscription.close();
+    super.dispose();
   }
 }

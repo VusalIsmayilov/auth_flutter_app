@@ -9,29 +9,35 @@ part of 'login_request_model.dart';
 _$LoginRequestModelImpl _$$LoginRequestModelImplFromJson(
         Map<String, dynamic> json) =>
     _$LoginRequestModelImpl(
-      email: json['email'] as String,
-      password: json['password'] as String,
+      email: json['Email'] as String,
+      password: json['Password'] as String,
     );
 
 Map<String, dynamic> _$$LoginRequestModelImplToJson(
         _$LoginRequestModelImpl instance) =>
     <String, dynamic>{
-      'email': instance.email,
-      'password': instance.password,
+      'Email': instance.email,
+      'Password': instance.password,
     };
 
 _$RegisterRequestModelImpl _$$RegisterRequestModelImplFromJson(
         Map<String, dynamic> json) =>
     _$RegisterRequestModelImpl(
-      email: json['email'] as String,
-      password: json['password'] as String,
+      email: json['Email'] as String,
+      password: json['Password'] as String,
+      firstName: json['FirstName'] as String?,
+      lastName: json['LastName'] as String?,
+      phoneNumber: json['PhoneNumber'] as String?,
     );
 
 Map<String, dynamic> _$$RegisterRequestModelImplToJson(
         _$RegisterRequestModelImpl instance) =>
     <String, dynamic>{
-      'email': instance.email,
-      'password': instance.password,
+      'Email': instance.email,
+      'Password': instance.password,
+      'FirstName': instance.firstName,
+      'LastName': instance.lastName,
+      'PhoneNumber': instance.phoneNumber,
     };
 
 _$RefreshTokenRequestModelImpl _$$RefreshTokenRequestModelImplFromJson(

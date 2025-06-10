@@ -6,8 +6,8 @@ part 'login_request_model.g.dart';
 @freezed
 class LoginRequestModel with _$LoginRequestModel {
   const factory LoginRequestModel({
-    required String email,
-    required String password,
+    @JsonKey(name: 'Email') required String email,
+    @JsonKey(name: 'Password') required String password,
   }) = _LoginRequestModel;
 
   factory LoginRequestModel.fromJson(Map<String, dynamic> json) =>
@@ -17,8 +17,11 @@ class LoginRequestModel with _$LoginRequestModel {
 @freezed
 class RegisterRequestModel with _$RegisterRequestModel {
   const factory RegisterRequestModel({
-    required String email,
-    required String password,
+    @JsonKey(name: 'Email') required String email,
+    @JsonKey(name: 'Password') required String password,
+    @JsonKey(name: 'FirstName') String? firstName,
+    @JsonKey(name: 'LastName') String? lastName,
+    @JsonKey(name: 'PhoneNumber') String? phoneNumber,
   }) = _RegisterRequestModel;
 
   factory RegisterRequestModel.fromJson(Map<String, dynamic> json) =>

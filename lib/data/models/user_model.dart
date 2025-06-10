@@ -11,6 +11,8 @@ class UserModel with _$UserModel {
     required int id,
     String? email,
     String? phoneNumber,
+    @JsonKey(name: 'FirstName') String? firstName,
+    @JsonKey(name: 'LastName') String? lastName,
     @Default(false) bool isEmailVerified,
     @Default(false) bool isPhoneVerified,
     String? currentRole,
@@ -23,7 +25,21 @@ class UserModel with _$UserModel {
   factory UserModel.fromJson(Map<String, dynamic> json) =>
       _$UserModelFromJson(json);
 
-  String get displayName => email ?? phoneNumber ?? 'User $id';
+  String get displayName {
+    // Use firstName and lastName if available
+    if (firstName != null && lastName != null) {
+      final fullName = '${firstName!.trim()} ${lastName!.trim()}'.trim();
+      if (fullName.isNotEmpty) return fullName;
+    }
+    
+    // Use just firstName if lastName is not available
+    if (firstName != null && firstName!.trim().isNotEmpty) {
+      return firstName!.trim();
+    }
+    
+    // Fallback to email or phone number
+    return email ?? phoneNumber ?? 'User $id';
+  }
 
   bool get hasRole => currentRole != null;
 

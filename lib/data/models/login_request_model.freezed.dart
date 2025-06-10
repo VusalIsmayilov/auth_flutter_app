@@ -20,7 +20,9 @@ LoginRequestModel _$LoginRequestModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$LoginRequestModel {
+  @JsonKey(name: 'Email')
   String get email => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Password')
   String get password => throw _privateConstructorUsedError;
 
   /// Serializes this LoginRequestModel to a JSON map.
@@ -39,7 +41,9 @@ abstract class $LoginRequestModelCopyWith<$Res> {
           LoginRequestModel value, $Res Function(LoginRequestModel) then) =
       _$LoginRequestModelCopyWithImpl<$Res, LoginRequestModel>;
   @useResult
-  $Res call({String email, String password});
+  $Res call(
+      {@JsonKey(name: 'Email') String email,
+      @JsonKey(name: 'Password') String password});
 }
 
 /// @nodoc
@@ -81,7 +85,9 @@ abstract class _$$LoginRequestModelImplCopyWith<$Res>
       __$$LoginRequestModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String email, String password});
+  $Res call(
+      {@JsonKey(name: 'Email') String email,
+      @JsonKey(name: 'Password') String password});
 }
 
 /// @nodoc
@@ -116,14 +122,18 @@ class __$$LoginRequestModelImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$LoginRequestModelImpl implements _LoginRequestModel {
-  const _$LoginRequestModelImpl({required this.email, required this.password});
+  const _$LoginRequestModelImpl(
+      {@JsonKey(name: 'Email') required this.email,
+      @JsonKey(name: 'Password') required this.password});
 
   factory _$LoginRequestModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$LoginRequestModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'Email')
   final String email;
   @override
+  @JsonKey(name: 'Password')
   final String password;
 
   @override
@@ -164,15 +174,18 @@ class _$LoginRequestModelImpl implements _LoginRequestModel {
 
 abstract class _LoginRequestModel implements LoginRequestModel {
   const factory _LoginRequestModel(
-      {required final String email,
-      required final String password}) = _$LoginRequestModelImpl;
+          {@JsonKey(name: 'Email') required final String email,
+          @JsonKey(name: 'Password') required final String password}) =
+      _$LoginRequestModelImpl;
 
   factory _LoginRequestModel.fromJson(Map<String, dynamic> json) =
       _$LoginRequestModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'Email')
   String get email;
   @override
+  @JsonKey(name: 'Password')
   String get password;
 
   /// Create a copy of LoginRequestModel
@@ -189,8 +202,16 @@ RegisterRequestModel _$RegisterRequestModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$RegisterRequestModel {
+  @JsonKey(name: 'Email')
   String get email => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Password')
   String get password => throw _privateConstructorUsedError;
+  @JsonKey(name: 'FirstName')
+  String? get firstName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'LastName')
+  String? get lastName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'PhoneNumber')
+  String? get phoneNumber => throw _privateConstructorUsedError;
 
   /// Serializes this RegisterRequestModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -208,7 +229,12 @@ abstract class $RegisterRequestModelCopyWith<$Res> {
           $Res Function(RegisterRequestModel) then) =
       _$RegisterRequestModelCopyWithImpl<$Res, RegisterRequestModel>;
   @useResult
-  $Res call({String email, String password});
+  $Res call(
+      {@JsonKey(name: 'Email') String email,
+      @JsonKey(name: 'Password') String password,
+      @JsonKey(name: 'FirstName') String? firstName,
+      @JsonKey(name: 'LastName') String? lastName,
+      @JsonKey(name: 'PhoneNumber') String? phoneNumber});
 }
 
 /// @nodoc
@@ -229,6 +255,9 @@ class _$RegisterRequestModelCopyWithImpl<$Res,
   $Res call({
     Object? email = null,
     Object? password = null,
+    Object? firstName = freezed,
+    Object? lastName = freezed,
+    Object? phoneNumber = freezed,
   }) {
     return _then(_value.copyWith(
       email: null == email
@@ -239,6 +268,18 @@ class _$RegisterRequestModelCopyWithImpl<$Res,
           ? _value.password
           : password // ignore: cast_nullable_to_non_nullable
               as String,
+      firstName: freezed == firstName
+          ? _value.firstName
+          : firstName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastName: freezed == lastName
+          ? _value.lastName
+          : lastName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      phoneNumber: freezed == phoneNumber
+          ? _value.phoneNumber
+          : phoneNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -251,7 +292,12 @@ abstract class _$$RegisterRequestModelImplCopyWith<$Res>
       __$$RegisterRequestModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String email, String password});
+  $Res call(
+      {@JsonKey(name: 'Email') String email,
+      @JsonKey(name: 'Password') String password,
+      @JsonKey(name: 'FirstName') String? firstName,
+      @JsonKey(name: 'LastName') String? lastName,
+      @JsonKey(name: 'PhoneNumber') String? phoneNumber});
 }
 
 /// @nodoc
@@ -269,6 +315,9 @@ class __$$RegisterRequestModelImplCopyWithImpl<$Res>
   $Res call({
     Object? email = null,
     Object? password = null,
+    Object? firstName = freezed,
+    Object? lastName = freezed,
+    Object? phoneNumber = freezed,
   }) {
     return _then(_$RegisterRequestModelImpl(
       email: null == email
@@ -279,6 +328,18 @@ class __$$RegisterRequestModelImplCopyWithImpl<$Res>
           ? _value.password
           : password // ignore: cast_nullable_to_non_nullable
               as String,
+      firstName: freezed == firstName
+          ? _value.firstName
+          : firstName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      lastName: freezed == lastName
+          ? _value.lastName
+          : lastName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      phoneNumber: freezed == phoneNumber
+          ? _value.phoneNumber
+          : phoneNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -287,19 +348,34 @@ class __$$RegisterRequestModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$RegisterRequestModelImpl implements _RegisterRequestModel {
   const _$RegisterRequestModelImpl(
-      {required this.email, required this.password});
+      {@JsonKey(name: 'Email') required this.email,
+      @JsonKey(name: 'Password') required this.password,
+      @JsonKey(name: 'FirstName') this.firstName,
+      @JsonKey(name: 'LastName') this.lastName,
+      @JsonKey(name: 'PhoneNumber') this.phoneNumber});
 
   factory _$RegisterRequestModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$RegisterRequestModelImplFromJson(json);
 
   @override
+  @JsonKey(name: 'Email')
   final String email;
   @override
+  @JsonKey(name: 'Password')
   final String password;
+  @override
+  @JsonKey(name: 'FirstName')
+  final String? firstName;
+  @override
+  @JsonKey(name: 'LastName')
+  final String? lastName;
+  @override
+  @JsonKey(name: 'PhoneNumber')
+  final String? phoneNumber;
 
   @override
   String toString() {
-    return 'RegisterRequestModel(email: $email, password: $password)';
+    return 'RegisterRequestModel(email: $email, password: $password, firstName: $firstName, lastName: $lastName, phoneNumber: $phoneNumber)';
   }
 
   @override
@@ -309,12 +385,19 @@ class _$RegisterRequestModelImpl implements _RegisterRequestModel {
             other is _$RegisterRequestModelImpl &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.password, password) ||
-                other.password == password));
+                other.password == password) &&
+            (identical(other.firstName, firstName) ||
+                other.firstName == firstName) &&
+            (identical(other.lastName, lastName) ||
+                other.lastName == lastName) &&
+            (identical(other.phoneNumber, phoneNumber) ||
+                other.phoneNumber == phoneNumber));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, email, password);
+  int get hashCode => Object.hash(
+      runtimeType, email, password, firstName, lastName, phoneNumber);
 
   /// Create a copy of RegisterRequestModel
   /// with the given fields replaced by the non-null parameter values.
@@ -336,16 +419,31 @@ class _$RegisterRequestModelImpl implements _RegisterRequestModel {
 
 abstract class _RegisterRequestModel implements RegisterRequestModel {
   const factory _RegisterRequestModel(
-      {required final String email,
-      required final String password}) = _$RegisterRequestModelImpl;
+          {@JsonKey(name: 'Email') required final String email,
+          @JsonKey(name: 'Password') required final String password,
+          @JsonKey(name: 'FirstName') final String? firstName,
+          @JsonKey(name: 'LastName') final String? lastName,
+          @JsonKey(name: 'PhoneNumber') final String? phoneNumber}) =
+      _$RegisterRequestModelImpl;
 
   factory _RegisterRequestModel.fromJson(Map<String, dynamic> json) =
       _$RegisterRequestModelImpl.fromJson;
 
   @override
+  @JsonKey(name: 'Email')
   String get email;
   @override
+  @JsonKey(name: 'Password')
   String get password;
+  @override
+  @JsonKey(name: 'FirstName')
+  String? get firstName;
+  @override
+  @JsonKey(name: 'LastName')
+  String? get lastName;
+  @override
+  @JsonKey(name: 'PhoneNumber')
+  String? get phoneNumber;
 
   /// Create a copy of RegisterRequestModel
   /// with the given fields replaced by the non-null parameter values.
