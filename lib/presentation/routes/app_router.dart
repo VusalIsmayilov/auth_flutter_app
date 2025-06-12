@@ -5,6 +5,7 @@ import '../pages/auth/login_page.dart';
 import '../pages/auth/register_page.dart';
 import '../pages/auth/forgot_password_page.dart';
 import '../pages/auth/reset_password_page.dart';
+import '../pages/auth/email_verification_page.dart';
 import '../pages/home/home_page.dart';
 import '../pages/common/splash_page.dart';
 import '../pages/user/profile_page.dart';
@@ -68,6 +69,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           final token = state.uri.queryParameters['token'] ?? '';
           final email = state.uri.queryParameters['email'];
           return ResetPasswordPage(token: token, email: email);
+        },
+      ),
+      GoRoute(
+        path: '/email-verification',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final email = extra?['email'] ?? state.uri.queryParameters['email'] ?? '';
+          return EmailVerificationPage(email: email);
         },
       ),
       GoRoute(
@@ -146,7 +155,7 @@ bool _isProtectedRoute(String location) {
 }
 
 bool _isAuthRoute(String location) {
-  const authRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
+  const authRoutes = ['/login', '/register', '/forgot-password', '/reset-password', '/email-verification'];
   return authRoutes.any((route) => location.startsWith(route));
 }
 

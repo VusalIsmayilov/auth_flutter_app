@@ -3,8 +3,8 @@ import 'package:logger/logger.dart';
 import '../../core/network/dio_client.dart';
 import '../../config/environment_config.dart';
 import '../../data/datasources/local/secure_storage_service.dart';
-import '../../data/datasources/remote/auth_api_service.dart';
 import '../../data/repositories/auth_repository_impl.dart';
+import '../../data/datasources/remote/auth_api_service.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/auth/login_usecase.dart';
 import '../../domain/usecases/auth/logout_usecase.dart';
@@ -13,6 +13,7 @@ import '../../domain/usecases/auth/refresh_token_usecase.dart';
 import '../../domain/usecases/user/get_user_profile_usecase.dart';
 import '../../domain/usecases/user/update_profile_usecase.dart';
 import '../../domain/usecases/auth/forgot_password_usecase.dart';
+import '../../domain/usecases/auth/verify_email_usecase.dart';
 import '../../services/jwt_service.dart';
 import '../../services/biometric_service.dart';
 import '../../data/models/user_model.dart';
@@ -38,20 +39,16 @@ final environmentConfigProvider = Provider<EnvironmentConfig>((ref) {
   return EnvironmentService.config;
 });
 
+// Network layer
+final authApiServiceProvider = Provider<AuthApiService>((ref) {
+  final dio = DioClient.getInstance();
+  return AuthApiService(dio);
+});
+
 // Repository (defined early to break circular dependency)
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  final apiService = ref.watch(authApiServiceProvider);
   final storageService = ref.watch(secureStorageProvider);
-  final config = ref.watch(environmentConfigProvider);
-  
-  final dio = DioClient.createDio(
-    baseUrl: config.apiUrl,
-    connectTimeout: config.connectTimeout.inMilliseconds,
-    receiveTimeout: config.receiveTimeout.inMilliseconds,
-    sendTimeout: config.sendTimeout.inMilliseconds,
-    enableCertificatePinning: config.enableCertificatePinning,
-  );
-  
-  final apiService = AuthApiService(dio);
   
   return AuthRepositoryImpl(
     apiService: apiService,
@@ -77,22 +74,7 @@ final jwtServiceProvider = Provider<JwtService>((ref) {
   return jwtService;
 });
 
-// Network layer (updated with JWT service)
-final authApiServiceProvider = Provider<AuthApiService>((ref) {
-  final jwtService = ref.watch(jwtServiceProvider);
-  final config = ref.watch(environmentConfigProvider);
-  
-  final dio = DioClient.createDio(
-    jwtService: jwtService,
-    baseUrl: config.apiUrl,
-    connectTimeout: config.connectTimeout.inMilliseconds,
-    receiveTimeout: config.receiveTimeout.inMilliseconds,
-    sendTimeout: config.sendTimeout.inMilliseconds,
-    enableCertificatePinning: config.enableCertificatePinning,
-  );
-  
-  return AuthApiService(dio);
-});
+// Network layer is now handled by HttpClientService directly
 
 // Use cases
 final loginUseCaseProvider = Provider<LoginUseCase>((ref) {
@@ -163,6 +145,18 @@ final resetPasswordUseCaseProvider = Provider<ResetPasswordUseCase>((ref) {
   return ResetPasswordUseCase(authRepository);
 });
 
+final verifyEmailUseCaseProvider = Provider<VerifyEmailUseCase>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+  
+  return VerifyEmailUseCase(authRepository);
+});
+
+final resendVerificationUseCaseProvider = Provider<ResendVerificationUseCase>((ref) {
+  final authRepository = ref.watch(authRepositoryProvider);
+  
+  return ResendVerificationUseCase(authRepository);
+});
+
 // Auth state notifier
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final loginUseCase = ref.watch(loginUseCaseProvider);
@@ -173,6 +167,8 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final updateProfileUseCase = ref.watch(updateProfileUseCaseProvider);
   final forgotPasswordUseCase = ref.watch(forgotPasswordUseCaseProvider);
   final resetPasswordUseCase = ref.watch(resetPasswordUseCaseProvider);
+  final verifyEmailUseCase = ref.watch(verifyEmailUseCaseProvider);
+  final resendVerificationUseCase = ref.watch(resendVerificationUseCaseProvider);
   final biometricService = ref.watch(biometricServiceProvider);
   final logger = ref.watch(loggerProvider);
   
@@ -185,6 +181,8 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
     updateProfileUseCase: updateProfileUseCase,
     forgotPasswordUseCase: forgotPasswordUseCase,
     resetPasswordUseCase: resetPasswordUseCase,
+    verifyEmailUseCase: verifyEmailUseCase,
+    resendVerificationUseCase: resendVerificationUseCase,
     biometricService: biometricService,
     logger: logger,
   );

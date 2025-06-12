@@ -7,25 +7,13 @@ class VerifyEmailUseCase {
 
   const VerifyEmailUseCase(this._authRepository);
 
-  Future<EmailVerificationResponseModel> execute(String email, String verificationCode) async {
-    if (email.isEmpty) {
-      throw const ValidationFailure(message: 'Email is required');
-    }
-
-    if (verificationCode.isEmpty) {
-      throw const ValidationFailure(message: 'Verification code is required');
-    }
-
-    if (verificationCode.length != 6) {
-      throw const ValidationFailure(message: 'Verification code must be 6 digits');
-    }
-
-    if (!RegExp(r'^[0-9]+$').hasMatch(verificationCode)) {
-      throw const ValidationFailure(message: 'Verification code must contain only numbers');
+  Future<EmailVerificationResponseModel> execute(String token) async {
+    if (token.isEmpty) {
+      throw const ValidationFailure(message: 'Verification token is required');
     }
 
     try {
-      return await _authRepository.verifyEmail(email, verificationCode);
+      return await _authRepository.verifyEmail(token);
     } catch (e) {
       rethrow;
     }

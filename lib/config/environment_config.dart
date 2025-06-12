@@ -39,7 +39,7 @@ class EnvironmentConfig {
   /// Get configuration for development environment
   static const EnvironmentConfig development = EnvironmentConfig(
     environment: Environment.development,
-    baseUrl: 'http://localhost:80', // API Gateway URL for testing
+    baseUrl: 'http://192.168.1.156:5001', // ASP.NET Core backend URL - using host IP for iOS simulator
     enableLogging: true,
     enableCertificatePinning: false, // Disabled for HTTP testing
     enableRequestSigning: false, // Disabled for local development

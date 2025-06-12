@@ -1,5 +1,5 @@
 class ApiEndpoints {
-  static const String baseUrl = 'http://localhost:80/api';
+  static const String baseUrl = 'http://192.168.1.156:5001/api';
   
   // Authentication endpoints - Updated to match backend AuthController
   static const String loginEmail = '/auth/login/email';

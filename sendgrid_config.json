@@ -1,0 +1,9 @@
+{
+  "Email": {
+    "Provider": "SendGrid",
+    "SendGridApiKey": "SG.REPLACE-WITH-YOUR-ACTUAL-API-KEY",
+    "FromEmail": "REPLACE-WITH-YOUR-VERIFIED-EMAIL@gmail.com",
+    "FromName": "AuthService",
+    "BaseUrl": "http://localhost:80"
+  }
+}

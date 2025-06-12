@@ -29,8 +29,9 @@ class AuthRepositoryImpl implements AuthRepository {
       }
       return response;
     } on DioException catch (e) {
+      final responseData = e.response?.data;
       throw ServerException(
-        message: e.response?.data['message'] ?? 'Login failed',
+        message: responseData?['message'] ?? 'Login failed',
         statusCode: e.response?.statusCode ?? 500,
       );
     } catch (e) {
@@ -89,8 +90,9 @@ class AuthRepositoryImpl implements AuthRepository {
         await _storageService.clearTokens();
         throw AuthenticationException(message: 'Refresh token expired');
       }
+      final responseData = e.response?.data;
       throw ServerException(
-        message: e.response?.data['message'] ?? 'Token refresh failed',
+        message: responseData?['message'] ?? 'Token refresh failed',
         statusCode: e.response?.statusCode ?? 500,
       );
     } catch (e) {
@@ -114,8 +116,9 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       return await _apiService.getUserProfile();
     } on DioException catch (e) {
+      final responseData = e.response?.data;
       throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to get user profile',
+        message: responseData?['message'] ?? 'Failed to get user profile',
         statusCode: e.response?.statusCode ?? 500,
       );
     } catch (e) {
@@ -183,8 +186,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final request = ForgotPasswordRequestModel(email: email);
       await _apiService.forgotPassword(request);
     } on DioException catch (e) {
+      final responseData = e.response?.data;
       throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to send reset email',
+        message: responseData?['message'] ?? 'Failed to send reset email',
         statusCode: e.response?.statusCode ?? 500,
       );
     } catch (e) {
@@ -201,8 +205,9 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       await _apiService.resetPassword(request);
     } on DioException catch (e) {
+      final responseData = e.response?.data;
       throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to reset password',
+        message: responseData?['message'] ?? 'Failed to reset password',
         statusCode: e.response?.statusCode ?? 500,
       );
     } catch (e) {
@@ -220,8 +225,9 @@ class AuthRepositoryImpl implements AuthRepository {
       if (e.response?.statusCode == 400) {
         return false; // Invalid or expired token
       }
+      final responseData = e.response?.data;
       throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to validate token',
+        message: responseData?['message'] ?? 'Failed to validate token',
         statusCode: e.response?.statusCode ?? 500,
       );
     } catch (e) {
@@ -240,8 +246,9 @@ class AuthRepositoryImpl implements AuthRepository {
         'newPassword': newPassword,
       });
     } on DioException catch (e) {
+      final responseData = e.response?.data;
       throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to change password',
+        message: responseData?['message'] ?? 'Failed to change password',
         statusCode: e.response?.statusCode ?? 500,
       );
     } catch (e) {
@@ -255,17 +262,17 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<EmailVerificationResponseModel> verifyEmail(String email, String verificationCode) async {
+  Future<EmailVerificationResponseModel> verifyEmail(String token) async {
     try {
       final request = VerifyEmailRequestModel(
-        email: email,
-        verificationCode: verificationCode,
+        token: token,
       );
       final response = await _apiService.verifyEmail(request);
       return response;
     } on DioException catch (e) {
+      final responseData = e.response?.data;
       throw ServerException(
-        message: e.response?.data['message'] ?? 'Email verification failed',
+        message: responseData?['message'] ?? 'Email verification failed',
         statusCode: e.response?.statusCode ?? 500,
       );
     } catch (e) {
@@ -280,8 +287,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await _apiService.resendVerification(request);
       return response;
     } on DioException catch (e) {
+      final responseData = e.response?.data;
       throw ServerException(
-        message: e.response?.data['message'] ?? 'Failed to resend verification email',
+        message: responseData?['message'] ?? 'Failed to resend verification email',
         statusCode: e.response?.statusCode ?? 500,
       );
     } catch (e) {

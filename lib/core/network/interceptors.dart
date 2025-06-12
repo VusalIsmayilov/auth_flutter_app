@@ -131,15 +131,16 @@ class LoggingInterceptor extends Interceptor {
 class SecurityHeadersInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    // Add security headers
-    options.headers.addAll({
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest',
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0',
-    });
+    // Remove any problematic headers that might cause 403 errors
+    options.headers.remove('X-Requested-With');
+    options.headers.remove('XMLHttpRequest');
+    
+    // Set headers that match working curl requests exactly
+    options.headers['Content-Type'] = 'application/json';
+    options.headers['Accept'] = 'application/json';
+    
+    // Add User-Agent to match mobile browser (like successful curl test)
+    options.headers['User-Agent'] = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1';
 
     handler.next(options);
   }

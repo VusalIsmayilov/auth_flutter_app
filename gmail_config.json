@@ -1,0 +1,13 @@
+{
+  "Email": {
+    "Provider": "SMTP",
+    "SmtpHost": "smtp.gmail.com",
+    "SmtpPort": 587,
+    "SmtpUsername": "REPLACE-WITH-YOUR-EMAIL@gmail.com",
+    "SmtpPassword": "REPLACE-WITH-YOUR-16-CHAR-APP-PASSWORD",
+    "FromEmail": "REPLACE-WITH-YOUR-EMAIL@gmail.com",
+    "FromName": "AuthService",
+    "EnableSsl": true,
+    "BaseUrl": "http://localhost:80"
+  }
+}

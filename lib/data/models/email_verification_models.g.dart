@@ -9,15 +9,13 @@ part of 'email_verification_models.dart';
 _$VerifyEmailRequestModelImpl _$$VerifyEmailRequestModelImplFromJson(
         Map<String, dynamic> json) =>
     _$VerifyEmailRequestModelImpl(
-      email: json['email'] as String,
-      verificationCode: json['verificationCode'] as String,
+      token: json['token'] as String,
     );
 
 Map<String, dynamic> _$$VerifyEmailRequestModelImplToJson(
         _$VerifyEmailRequestModelImpl instance) =>
     <String, dynamic>{
-      'email': instance.email,
-      'verificationCode': instance.verificationCode,
+      'token': instance.token,
     };
 
 _$ResendVerificationRequestModelImpl

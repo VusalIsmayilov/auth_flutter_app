@@ -32,17 +32,13 @@ class _EmailVerificationPageState extends ConsumerState<EmailVerificationPage> {
     super.dispose();
   }
 
-  String? _validateCode(String? value) {
+  String? _validateToken(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter the verification code';
+      return 'Please enter the verification token';
     }
     
-    if (value.length != 6) {
-      return 'Verification code must be 6 digits';
-    }
-    
-    if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-      return 'Verification code must contain only numbers';
+    if (value.length < 10) {
+      return 'Verification token appears to be too short';
     }
     
     return null;
@@ -55,7 +51,6 @@ class _EmailVerificationPageState extends ConsumerState<EmailVerificationPage> {
 
     try {
       await ref.read(authProvider.notifier).verifyEmail(
-        widget.email,
         _codeController.text.trim(),
       );
 
@@ -173,7 +168,7 @@ class _EmailVerificationPageState extends ConsumerState<EmailVerificationPage> {
                   const SizedBox(height: 8),
                   
                   Text(
-                    'We\'ve sent a 6-digit verification code to:',
+                    'We\'ve sent a verification link to:',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
@@ -198,11 +193,11 @@ class _EmailVerificationPageState extends ConsumerState<EmailVerificationPage> {
                       children: [
                         SimpleTextField(
                           controller: _codeController,
-                          label: 'Verification Code',
-                          hintText: 'Enter 6-digit code',
-                          keyboardType: TextInputType.number,
+                          label: 'Verification Token',
+                          hintText: 'Enter verification token from email',
+                          keyboardType: TextInputType.text,
                           prefixIcon: Icons.security,
-                          validator: _validateCode,
+                          validator: _validateToken,
                           textInputAction: TextInputAction.done,
                           onFieldSubmitted: (_) => _verifyEmail(),
                         ),
@@ -239,7 +234,8 @@ class _EmailVerificationPageState extends ConsumerState<EmailVerificationPage> {
                                 '• Check your spam/junk folder\n'
                                 '• Make sure the email address is correct\n'
                                 '• Wait a few minutes for delivery\n'
-                                '• Request a new code if needed',
+                                '• Copy the token from the email link\n'
+                                '• Request a new email if needed',
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),

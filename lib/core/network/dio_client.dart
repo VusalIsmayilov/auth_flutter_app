@@ -5,8 +5,6 @@ import '../../services/jwt_service.dart';
 import 'interceptors.dart';
 import 'certificate_pinning.dart';
 import '../security/request_signing_service.dart';
-import '../security/token_blacklist_service.dart';
-import '../security/token_blacklist_interceptor.dart';
 
 class DioClient {
   static Dio? _dio;
@@ -47,36 +45,18 @@ class DioClient {
       _logger.d('Request signing service configured');
     }
 
-    // Add interceptors in order of execution
-    dio.interceptors.addAll([
-      // Certificate pinning interceptor (first for security)
-      if (enableCertificatePinning && CertificatePinningService.isInitialized)
-        CertificatePinningService.instance!.createInterceptor(),
-      
-      // Token blacklist validation (after cert pinning, before auth)
-      if (TokenBlacklistService.isInitialized && jwtService != null)
-        TokenBlacklistInterceptor(
-          blacklistService: TokenBlacklistService.instance,
-          jwtService: jwtService,
-          logger: _logger,
-        ),
-      
-      // Request signing (after security checks, before other processing)
-      if (requestSigningService != null)
-        requestSigningService.createInterceptor(),
-      
-      // Security headers
-      SecurityHeadersInterceptor(),
-      
-      // Logging (for debugging)
-      if (_isDebugMode()) LoggingInterceptor(logger: _logger),
-      
-      // Authentication (before requests)
-      if (jwtService != null) AuthInterceptor(jwtService: jwtService, logger: _logger),
-      
-      // Error handling (last)
-      ErrorHandlingInterceptor(logger: _logger),
-    ]);
+    // TEMPORARY: Remove all interceptors to test if they're causing 403 errors
+    // Add only minimal headers directly to options
+    dio.options.headers.addAll({
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+    });
+    
+    // Add logging for debugging only
+    if (_isDebugMode()) {
+      dio.interceptors.add(LoggingInterceptor(logger: _logger));
+    }
 
     _logger.d('Dio client created with base URL: ${dio.options.baseUrl}');
     return dio;

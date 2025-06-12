@@ -18,6 +18,6 @@ abstract class AuthRepository {
   Future<void> resetPassword(String token, String newPassword);
   Future<void> changePassword(String currentPassword, String newPassword);
   Future<bool> isTokenValid();
-  Future<EmailVerificationResponseModel> verifyEmail(String email, String verificationCode);
+  Future<EmailVerificationResponseModel> verifyEmail(String token);
   Future<EmailVerificationResponseModel> resendVerification(String email);
 }

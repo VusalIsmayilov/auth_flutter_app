@@ -6,8 +6,7 @@ part 'email_verification_models.g.dart';
 @freezed
 class VerifyEmailRequestModel with _$VerifyEmailRequestModel {
   const factory VerifyEmailRequestModel({
-    required String email,
-    required String verificationCode,
+    required String token,
   }) = _VerifyEmailRequestModel;
 
   factory VerifyEmailRequestModel.fromJson(Map<String, dynamic> json) =>

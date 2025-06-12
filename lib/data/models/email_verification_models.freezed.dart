@@ -21,8 +21,7 @@ VerifyEmailRequestModel _$VerifyEmailRequestModelFromJson(
 
 /// @nodoc
 mixin _$VerifyEmailRequestModel {
-  String get email => throw _privateConstructorUsedError;
-  String get verificationCode => throw _privateConstructorUsedError;
+  String get token => throw _privateConstructorUsedError;
 
   /// Serializes this VerifyEmailRequestModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -40,7 +39,7 @@ abstract class $VerifyEmailRequestModelCopyWith<$Res> {
           $Res Function(VerifyEmailRequestModel) then) =
       _$VerifyEmailRequestModelCopyWithImpl<$Res, VerifyEmailRequestModel>;
   @useResult
-  $Res call({String email, String verificationCode});
+  $Res call({String token});
 }
 
 /// @nodoc
@@ -59,17 +58,12 @@ class _$VerifyEmailRequestModelCopyWithImpl<$Res,
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? email = null,
-    Object? verificationCode = null,
+    Object? token = null,
   }) {
     return _then(_value.copyWith(
-      email: null == email
-          ? _value.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String,
-      verificationCode: null == verificationCode
-          ? _value.verificationCode
-          : verificationCode // ignore: cast_nullable_to_non_nullable
+      token: null == token
+          ? _value.token
+          : token // ignore: cast_nullable_to_non_nullable
               as String,
     ) as $Val);
   }
@@ -84,7 +78,7 @@ abstract class _$$VerifyEmailRequestModelImplCopyWith<$Res>
       __$$VerifyEmailRequestModelImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String email, String verificationCode});
+  $Res call({String token});
 }
 
 /// @nodoc
@@ -102,17 +96,12 @@ class __$$VerifyEmailRequestModelImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? email = null,
-    Object? verificationCode = null,
+    Object? token = null,
   }) {
     return _then(_$VerifyEmailRequestModelImpl(
-      email: null == email
-          ? _value.email
-          : email // ignore: cast_nullable_to_non_nullable
-              as String,
-      verificationCode: null == verificationCode
-          ? _value.verificationCode
-          : verificationCode // ignore: cast_nullable_to_non_nullable
+      token: null == token
+          ? _value.token
+          : token // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
@@ -121,20 +110,17 @@ class __$$VerifyEmailRequestModelImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$VerifyEmailRequestModelImpl implements _VerifyEmailRequestModel {
-  const _$VerifyEmailRequestModelImpl(
-      {required this.email, required this.verificationCode});
+  const _$VerifyEmailRequestModelImpl({required this.token});
 
   factory _$VerifyEmailRequestModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$VerifyEmailRequestModelImplFromJson(json);
 
   @override
-  final String email;
-  @override
-  final String verificationCode;
+  final String token;
 
   @override
   String toString() {
-    return 'VerifyEmailRequestModel(email: $email, verificationCode: $verificationCode)';
+    return 'VerifyEmailRequestModel(token: $token)';
   }
 
   @override
@@ -142,14 +128,12 @@ class _$VerifyEmailRequestModelImpl implements _VerifyEmailRequestModel {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$VerifyEmailRequestModelImpl &&
-            (identical(other.email, email) || other.email == email) &&
-            (identical(other.verificationCode, verificationCode) ||
-                other.verificationCode == verificationCode));
+            (identical(other.token, token) || other.token == token));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, email, verificationCode);
+  int get hashCode => Object.hash(runtimeType, token);
 
   /// Create a copy of VerifyEmailRequestModel
   /// with the given fields replaced by the non-null parameter values.
@@ -169,17 +153,14 @@ class _$VerifyEmailRequestModelImpl implements _VerifyEmailRequestModel {
 }
 
 abstract class _VerifyEmailRequestModel implements VerifyEmailRequestModel {
-  const factory _VerifyEmailRequestModel(
-      {required final String email,
-      required final String verificationCode}) = _$VerifyEmailRequestModelImpl;
+  const factory _VerifyEmailRequestModel({required final String token}) =
+      _$VerifyEmailRequestModelImpl;
 
   factory _VerifyEmailRequestModel.fromJson(Map<String, dynamic> json) =
       _$VerifyEmailRequestModelImpl.fromJson;
 
   @override
-  String get email;
-  @override
-  String get verificationCode;
+  String get token;
 
   /// Create a copy of VerifyEmailRequestModel
   /// with the given fields replaced by the non-null parameter values.

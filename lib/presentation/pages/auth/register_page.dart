@@ -304,7 +304,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     return null;
   }
 
-  void _handleRegister() {
+  Future<void> _handleRegister() async {
     print('DEBUG: Register button clicked');
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       final formData = _formKey.currentState!.value;
@@ -320,7 +320,18 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
       print('DEBUG: Created RegisterRequestModel: ${registerRequest.email}');
       print('DEBUG: Calling auth provider register...');
-      ref.read(authProvider.notifier).register(registerRequest);
+      
+      try {
+        await ref.read(authProvider.notifier).register(registerRequest);
+        
+        // Registration successful - redirect to email verification
+        if (mounted) {
+          context.go('/email-verification', extra: {'email': registerRequest.email});
+        }
+      } catch (e) {
+        // Error handling is already done in the auth provider and displayed via the error provider
+        print('DEBUG: Registration failed: $e');
+      }
     } else {
       print('DEBUG: Form validation failed');
       final currentState = _formKey.currentState;

@@ -10,6 +10,7 @@ import '../../domain/usecases/auth/refresh_token_usecase.dart';
 import '../../domain/usecases/user/get_user_profile_usecase.dart';
 import '../../domain/usecases/user/update_profile_usecase.dart';
 import '../../domain/usecases/auth/forgot_password_usecase.dart';
+import '../../domain/usecases/auth/verify_email_usecase.dart';
 import '../../services/biometric_service.dart';
 
 enum AuthStatus { initial, loading, authenticated, unauthenticated, error }
@@ -65,6 +66,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final UpdateProfileUseCase _updateProfileUseCase;
   final ForgotPasswordUseCase _forgotPasswordUseCase;
   final ResetPasswordUseCase _resetPasswordUseCase;
+  final VerifyEmailUseCase _verifyEmailUseCase;
+  final ResendVerificationUseCase _resendVerificationUseCase;
   final BiometricService _biometricService;
   final Logger _logger;
 
@@ -82,6 +85,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
     required UpdateProfileUseCase updateProfileUseCase,
     required ForgotPasswordUseCase forgotPasswordUseCase,
     required ResetPasswordUseCase resetPasswordUseCase,
+    required VerifyEmailUseCase verifyEmailUseCase,
+    required ResendVerificationUseCase resendVerificationUseCase,
     required BiometricService biometricService,
     Logger? logger,
   }) : _loginUseCase = loginUseCase,
@@ -92,6 +97,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
        _updateProfileUseCase = updateProfileUseCase,
        _forgotPasswordUseCase = forgotPasswordUseCase,
        _resetPasswordUseCase = resetPasswordUseCase,
+       _verifyEmailUseCase = verifyEmailUseCase,
+       _resendVerificationUseCase = resendVerificationUseCase,
        _biometricService = biometricService,
        _logger = logger ?? Logger(),
        super(const AuthState(status: AuthStatus.initial));
@@ -550,22 +557,49 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  /// Verify email with verification code
-  Future<void> verifyEmail(String email, String verificationCode) async {
+  /// Verify email with verification token
+  Future<void> verifyEmail(String token) async {
     try {
       state = state.copyWith(status: AuthStatus.loading);
+      _logger.d('Starting email verification with token');
       
-      // TODO: Implement email verification with backend
-      // For now, this is a stub implementation
-      await Future.delayed(const Duration(seconds: 1));
+      // Call backend API for email verification
+      final verificationResponse = await _verifyEmailUseCase.execute(token);
       
-      _logger.d('Email verification completed for: $email');
+      _logger.d('Email verification successful: ${verificationResponse.message}');
       
+      // Update user's email verification status if user is currently logged in
+      if (state.user != null) {
+        final updatedUser = state.user!.copyWith(isEmailVerified: true);
+        state = state.copyWith(
+          status: AuthStatus.authenticated,
+          user: updatedUser,
+          errorMessage: null,
+          fieldErrors: null,
+        );
+      } else {
+        state = state.copyWith(
+          status: AuthStatus.unauthenticated,
+          errorMessage: null,
+          fieldErrors: null,
+        );
+      }
+    } on ValidationException catch (e) {
       state = state.copyWith(
-        status: AuthStatus.authenticated,
-        errorMessage: null,
+        status: AuthStatus.error,
+        errorMessage: e.message,
+        fieldErrors: e.fieldErrors,
+      );
+      _logger.w('Email verification validation error: ${e.message}');
+      rethrow;
+    } on ServerException catch (e) {
+      state = state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: e.message,
         fieldErrors: null,
       );
+      _logger.e('Email verification server error: ${e.message}');
+      rethrow;
     } catch (e) {
       state = state.copyWith(
         status: AuthStatus.error,
@@ -580,11 +614,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
   /// Resend verification email
   Future<void> resendVerification(String email) async {
     try {
-      // TODO: Implement resend verification with backend
-      // For now, this is a stub implementation
-      await Future.delayed(const Duration(seconds: 1));
+      _logger.d('Resending verification email to: $email');
       
-      _logger.d('Verification email resent to: $email');
+      // Call backend API to resend verification email
+      final response = await _resendVerificationUseCase.execute(email);
+      
+      _logger.d('Verification email resent successfully: ${response.message}');
+    } on ValidationException catch (e) {
+      _logger.w('Resend verification validation error: ${e.message}');
+      rethrow;
+    } on ServerException catch (e) {
+      _logger.e('Resend verification server error: ${e.message}');
+      rethrow;
     } catch (e) {
       _logger.e('Resend verification error: $e');
       rethrow;

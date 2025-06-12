@@ -177,6 +177,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ),
                           const SizedBox(height: 32),
                           
+                          
                           // Sign up link
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -291,4 +292,5 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       ref.read(authProvider.notifier).login(loginRequest);
     }
   }
+
 }
