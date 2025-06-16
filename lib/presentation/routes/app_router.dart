@@ -76,7 +76,8 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           final email = extra?['email'] ?? state.uri.queryParameters['email'] ?? '';
-          return EmailVerificationPage(email: email);
+          final token = state.uri.queryParameters['token'];
+          return EmailVerificationPage(email: email, token: token);
         },
       ),
       GoRoute(

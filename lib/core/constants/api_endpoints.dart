@@ -1,5 +1,5 @@
 class ApiEndpoints {
-  static const String baseUrl = 'http://192.168.1.156:5001/api';
+  static const String baseUrl = 'http://localhost:5000/api';
   
   // Authentication endpoints - Updated to match backend AuthController
   static const String loginEmail = '/auth/login/email';
@@ -24,9 +24,9 @@ class ApiEndpoints {
   static const String legacyLoginEmail = '/auth/legacy/login/email';
   static const String legacyRegisterEmail = '/auth/legacy/register/email';
   
-  // User endpoints
-  static const String profile = '/user/profile';
-  static const String updateProfile = '/user/profile';
+  // User endpoints  
+  static const String profile = '/auth/me';
+  static const String updateProfile = '/auth/me';
   static const String changePassword = '/user/change-password';
   static const String deleteAccount = '/user/delete';
   

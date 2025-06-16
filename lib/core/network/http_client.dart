@@ -1,24 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import '../constants/api_endpoints.dart';
 
 class HttpClientService {
-  static HttpClient? _client;
   static final Logger _logger = Logger();
   
-  static HttpClient get instance {
-    if (_client == null) {
-      _client = HttpClient();
-      _client!.connectionTimeout = const Duration(milliseconds: 30000);
-      _logger.d('HttpClient instance created');
-    }
-    return _client!;
-  }
-  
   static void dispose() {
-    _client?.close();
-    _client = null;
     _logger.d('HttpClient instance disposed');
   }
   
@@ -32,41 +20,42 @@ class HttpClientService {
     final uri = Uri.parse(url);
     
     try {
-      final request = await instance.postUrl(uri);
-      
       // Set default headers
-      request.headers.set('Content-Type', 'application/json');
-      request.headers.set('Accept', 'application/json');
-      request.headers.set('User-Agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1');
+      final defaultHeaders = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+      };
       
       // Add custom headers
       if (headers != null) {
-        for (final entry in headers.entries) {
-          request.headers.set(entry.key, entry.value);
-        }
+        defaultHeaders.addAll(headers);
       }
       
-      // Add body if provided
+      // Prepare body
+      String? body;
       if (data != null) {
-        final body = jsonEncode(data);
-        request.write(body);
+        body = jsonEncode(data);
         _logger.d('POST $url - Body: $body');
       }
       
-      _logger.d('POST $url - Headers: ${request.headers}');
+      _logger.d('POST $url - Headers: $defaultHeaders');
       
-      final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
+      final response = await http.post(
+        uri,
+        headers: defaultHeaders,
+        body: body,
+      ).timeout(const Duration(seconds: 30));
       
       _logger.d('POST $url - Status: ${response.statusCode}');
-      _logger.d('POST $url - Response: $responseBody');
+      _logger.d('POST $url - Response: ${response.body}');
       
       dynamic responseData;
-      if (responseBody.isNotEmpty) {
+      if (response.body.isNotEmpty) {
         try {
-          responseData = jsonDecode(responseBody);
+          responseData = jsonDecode(response.body);
         } catch (e) {
-          _logger.e('JSON decode error: $e, responseBody: $responseBody');
+          _logger.e('JSON decode error: $e, responseBody: ${response.body}');
           responseData = null;
         }
       }
@@ -79,6 +68,68 @@ class HttpClientService {
       
     } catch (e) {
       _logger.e('POST $url - Error: $e');
+      rethrow;
+    }
+  }
+  
+  static Future<HttpResponse> put(
+    String path, {
+    Map<String, dynamic>? data,
+    Map<String, String>? headers,
+    String? baseUrl,
+  }) async {
+    final url = '${baseUrl ?? ApiEndpoints.baseUrl}$path';
+    final uri = Uri.parse(url);
+    
+    try {
+      // Set default headers
+      final defaultHeaders = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+      };
+      
+      // Add custom headers
+      if (headers != null) {
+        defaultHeaders.addAll(headers);
+      }
+      
+      // Prepare body
+      String? body;
+      if (data != null) {
+        body = jsonEncode(data);
+        _logger.d('PUT $url - Body: $body');
+      }
+      
+      _logger.d('PUT $url - Headers: $defaultHeaders');
+      
+      final response = await http.put(
+        uri,
+        headers: defaultHeaders,
+        body: body,
+      ).timeout(const Duration(seconds: 30));
+      
+      _logger.d('PUT $url - Status: ${response.statusCode}');
+      _logger.d('PUT $url - Response: ${response.body}');
+      
+      dynamic responseData;
+      if (response.body.isNotEmpty) {
+        try {
+          responseData = jsonDecode(response.body);
+        } catch (e) {
+          _logger.e('JSON decode error: $e, responseBody: ${response.body}');
+          responseData = null;
+        }
+      }
+      
+      return HttpResponse(
+        statusCode: response.statusCode,
+        data: responseData,
+        headers: response.headers,
+      );
+      
+    } catch (e) {
+      _logger.e('PUT $url - Error: $e');
       rethrow;
     }
   }
@@ -97,33 +148,33 @@ class HttpClientService {
     }
     
     try {
-      final request = await instance.getUrl(uri);
-      
       // Set default headers
-      request.headers.set('Accept', 'application/json');
-      request.headers.set('User-Agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1');
+      final defaultHeaders = {
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+      };
       
       // Add custom headers
       if (headers != null) {
-        for (final entry in headers.entries) {
-          request.headers.set(entry.key, entry.value);
-        }
+        defaultHeaders.addAll(headers);
       }
       
-      _logger.d('GET $uri - Headers: ${request.headers}');
+      _logger.d('GET $uri - Headers: $defaultHeaders');
       
-      final response = await request.close();
-      final responseBody = await response.transform(utf8.decoder).join();
+      final response = await http.get(
+        uri,
+        headers: defaultHeaders,
+      ).timeout(const Duration(seconds: 30));
       
       _logger.d('GET $uri - Status: ${response.statusCode}');
-      _logger.d('GET $uri - Response: $responseBody');
+      _logger.d('GET $uri - Response: ${response.body}');
       
       dynamic responseData;
-      if (responseBody.isNotEmpty) {
+      if (response.body.isNotEmpty) {
         try {
-          responseData = jsonDecode(responseBody);
+          responseData = jsonDecode(response.body);
         } catch (e) {
-          _logger.e('JSON decode error: $e, responseBody: $responseBody');
+          _logger.e('JSON decode error: $e, responseBody: ${response.body}');
           responseData = null;
         }
       }
@@ -144,7 +195,7 @@ class HttpClientService {
 class HttpResponse {
   final int statusCode;
   final dynamic data;
-  final HttpHeaders headers;
+  final Map<String, String> headers;
   
   const HttpResponse({
     required this.statusCode,

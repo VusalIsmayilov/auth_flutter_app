@@ -23,9 +23,7 @@ mixin _$UserModel {
   int get id => throw _privateConstructorUsedError;
   String? get email => throw _privateConstructorUsedError;
   String? get phoneNumber => throw _privateConstructorUsedError;
-  @JsonKey(name: 'FirstName')
   String? get firstName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'LastName')
   String? get lastName => throw _privateConstructorUsedError;
   bool get isEmailVerified => throw _privateConstructorUsedError;
   bool get isPhoneVerified => throw _privateConstructorUsedError;
@@ -54,8 +52,8 @@ abstract class $UserModelCopyWith<$Res> {
       {int id,
       String? email,
       String? phoneNumber,
-      @JsonKey(name: 'FirstName') String? firstName,
-      @JsonKey(name: 'LastName') String? lastName,
+      String? firstName,
+      String? lastName,
       bool isEmailVerified,
       bool isPhoneVerified,
       String? currentRole,
@@ -158,8 +156,8 @@ abstract class _$$UserModelImplCopyWith<$Res>
       {int id,
       String? email,
       String? phoneNumber,
-      @JsonKey(name: 'FirstName') String? firstName,
-      @JsonKey(name: 'LastName') String? lastName,
+      String? firstName,
+      String? lastName,
       bool isEmailVerified,
       bool isPhoneVerified,
       String? currentRole,
@@ -255,8 +253,8 @@ class _$UserModelImpl extends _UserModel {
       {required this.id,
       this.email,
       this.phoneNumber,
-      @JsonKey(name: 'FirstName') this.firstName,
-      @JsonKey(name: 'LastName') this.lastName,
+      this.firstName,
+      this.lastName,
       this.isEmailVerified = false,
       this.isPhoneVerified = false,
       this.currentRole,
@@ -276,10 +274,8 @@ class _$UserModelImpl extends _UserModel {
   @override
   final String? phoneNumber;
   @override
-  @JsonKey(name: 'FirstName')
   final String? firstName;
   @override
-  @JsonKey(name: 'LastName')
   final String? lastName;
   @override
   @JsonKey()
@@ -371,8 +367,8 @@ abstract class _UserModel extends UserModel {
       {required final int id,
       final String? email,
       final String? phoneNumber,
-      @JsonKey(name: 'FirstName') final String? firstName,
-      @JsonKey(name: 'LastName') final String? lastName,
+      final String? firstName,
+      final String? lastName,
       final bool isEmailVerified,
       final bool isPhoneVerified,
       final String? currentRole,
@@ -392,10 +388,8 @@ abstract class _UserModel extends UserModel {
   @override
   String? get phoneNumber;
   @override
-  @JsonKey(name: 'FirstName')
   String? get firstName;
   @override
-  @JsonKey(name: 'LastName')
   String? get lastName;
   @override
   bool get isEmailVerified;

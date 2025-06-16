@@ -14,7 +14,7 @@ class _AuthApiService implements AuthApiService {
     this.baseUrl,
     this.errorLogger,
   }) {
-    baseUrl ??= 'http://localhost:80/api';
+    baseUrl ??= 'http://localhost:5000/api';
   }
 
   final Dio _dio;
@@ -356,7 +356,7 @@ class _AuthApiService implements AuthApiService {
     )
         .compose(
           _dio.options,
-          '/user/profile',
+          '/auth/me',
           queryParameters: queryParameters,
           data: _data,
         )

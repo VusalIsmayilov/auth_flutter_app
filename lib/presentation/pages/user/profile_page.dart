@@ -624,13 +624,52 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  void _resendEmailVerification() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Email verification sent - Feature coming soon'),
-        backgroundColor: Colors.blue,
-      ),
-    );
+  Future<void> _resendEmailVerification() async {
+    final user = ref.read(currentUserProvider);
+    if (user?.email == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No email address found'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await ref.read(authProvider.notifier).resendVerification(user!.email!);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Verification email sent! Please check your inbox.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        
+        // Navigate to email verification page
+        context.go('/email-verification', extra: {'email': user.email!});
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to send verification email: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   void _changePassword() {

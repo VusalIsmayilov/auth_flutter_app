@@ -195,15 +195,16 @@ class AuthNotifier extends StateNotifier<AuthState> {
       _logger.d('Registration API call successful');
       _logger.d('Auth response: ${authResponse.success ? "Success" : "Failed"} - ${authResponse.message}');
 
-      // Backend doesn't return firstName/lastName in registration response
+      // Backend doesn't return firstName/lastName/phoneNumber in registration response
       // Store these locally and merge with user data until backend is fixed
       var user = authResponse.user;
-      if (user != null && (request.firstName != null || request.lastName != null)) {
+      if (user != null && (request.firstName != null || request.lastName != null || request.phoneNumber != null)) {
         user = user.copyWith(
           firstName: request.firstName,
           lastName: request.lastName,
+          phoneNumber: request.phoneNumber,
         );
-        _logger.d('Enhanced user with firstName/lastName from registration: ${request.firstName} ${request.lastName}');
+        _logger.d('Enhanced user with local data - Name: ${request.firstName} ${request.lastName}, Phone: ${request.phoneNumber}');
       }
       
       state = state.copyWith(
@@ -334,7 +335,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
             fieldErrors: null,
           );
           
-          _logger.d('Profile updated locally: ${updatedUser.displayName}');
+          _logger.d('Profile updated locally: ${updatedUser.displayName}, Phone: ${updatedUser.phoneNumber}');
           return; // Success - exit without throwing error
         }
       }

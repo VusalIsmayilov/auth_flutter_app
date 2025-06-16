@@ -141,7 +141,7 @@ class AuthRepositoryHttpImpl implements AuthRepository {
       }
 
       final response = await HttpClientService.get(
-        '/user/profile',
+        '/auth/me',
         headers: {'Authorization': 'Bearer $token'},
       );
       
@@ -152,11 +152,11 @@ class AuthRepositoryHttpImpl implements AuthRepository {
         );
       }
       
-      if (response.data == null || response.data['user'] == null) {
+      if (response.data == null) {
         throw ServerException(message: 'No user data received from server');
       }
       
-      return UserModel.fromJson(response.data['user'] as Map<String, dynamic>);
+      return UserModel.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       if (e is ServerException) rethrow;
       throw ServerException(message: 'Unexpected error occurred: $e');
@@ -171,9 +171,22 @@ class AuthRepositoryHttpImpl implements AuthRepository {
         throw ServerException(message: 'No access token available');
       }
 
-      final response = await HttpClientService.post(
-        '/user/update-profile',
-        data: data,
+      // Convert camelCase to PascalCase for backend compatibility
+      final backendData = <String, dynamic>{};
+      if (data.containsKey('firstName')) {
+        backendData['FirstName'] = data['firstName'];
+      }
+      if (data.containsKey('lastName')) {
+        backendData['LastName'] = data['lastName'];
+      }
+      if (data.containsKey('phoneNumber')) {
+        backendData['PhoneNumber'] = data['phoneNumber'];
+      }
+      
+      print('DEBUG: Attempting profile update with backend data: $backendData');
+      final response = await HttpClientService.put(
+        '/auth/me',
+        data: backendData,
         headers: {'Authorization': 'Bearer $token'},
       );
       
@@ -184,11 +197,11 @@ class AuthRepositoryHttpImpl implements AuthRepository {
         );
       }
       
-      if (response.data == null || response.data['user'] == null) {
+      if (response.data == null) {
         throw ServerException(message: 'No user data received from server');
       }
       
-      return UserModel.fromJson(response.data['user'] as Map<String, dynamic>);
+      return UserModel.fromJson(response.data as Map<String, dynamic>);
     } catch (e) {
       if (e is ServerException) rethrow;
       throw ServerException(message: 'Unexpected error occurred: $e');

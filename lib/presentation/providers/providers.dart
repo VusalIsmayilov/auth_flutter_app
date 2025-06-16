@@ -1,10 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logger/logger.dart';
-import '../../core/network/dio_client.dart';
 import '../../config/environment_config.dart';
 import '../../data/datasources/local/secure_storage_service.dart';
-import '../../data/repositories/auth_repository_impl.dart';
-import '../../data/datasources/remote/auth_api_service.dart';
+import '../../data/repositories/auth_repository_http_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/auth/login_usecase.dart';
 import '../../domain/usecases/auth/logout_usecase.dart';
@@ -39,19 +37,11 @@ final environmentConfigProvider = Provider<EnvironmentConfig>((ref) {
   return EnvironmentService.config;
 });
 
-// Network layer
-final authApiServiceProvider = Provider<AuthApiService>((ref) {
-  final dio = DioClient.getInstance();
-  return AuthApiService(dio);
-});
-
 // Repository (defined early to break circular dependency)
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  final apiService = ref.watch(authApiServiceProvider);
   final storageService = ref.watch(secureStorageProvider);
   
-  return AuthRepositoryImpl(
-    apiService: apiService,
+  return AuthRepositoryHttpImpl(
     storageService: storageService,
   );
 });
@@ -67,9 +57,6 @@ final jwtServiceProvider = Provider<JwtService>((ref) {
     storageService: storageService,
     logger: logger,
   );
-  
-  // Update Dio client with JWT service
-  DioClient.updateJwtService(jwtService);
   
   return jwtService;
 });

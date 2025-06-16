@@ -8,10 +8,12 @@ import '../../providers/providers.dart';
 
 class EmailVerificationPage extends ConsumerStatefulWidget {
   final String email;
+  final String? token;
 
   const EmailVerificationPage({
     super.key,
     required this.email,
+    this.token,
   });
 
   @override
@@ -25,6 +27,19 @@ class _EmailVerificationPageState extends ConsumerState<EmailVerificationPage> {
   bool _isVerified = false;
   bool _canResend = true;
   int _resendCountdown = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // If token is provided in URL, auto-verify
+    if (widget.token != null && widget.token!.isNotEmpty) {
+      _codeController.text = widget.token!;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _verifyEmail();
+      });
+    }
+  }
 
   @override
   void dispose() {

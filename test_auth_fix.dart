@@ -19,7 +19,7 @@ Future<void> testHttpClient() async {
   
   try {
     final client = HttpClient();
-    final request = await client.getUrl(Uri.parse('http://192.168.1.156:5001/api/health'));
+    final request = await client.getUrl(Uri.parse('http://localhost:5001/api/health'));
     request.headers.set('Accept', 'application/json');
     
     final response = await request.close();
@@ -45,7 +45,7 @@ Future<void> testLoginWithHttpClient() async {
   
   try {
     final client = HttpClient();
-    final request = await client.postUrl(Uri.parse('http://192.168.1.156:5001/api/auth/login/email'));
+    final request = await client.postUrl(Uri.parse('http://localhost:5001/api/auth/login/email'));
     
     // Set headers exactly as in our implementation
     request.headers.set('Content-Type', 'application/json');
@@ -54,8 +54,8 @@ Future<void> testLoginWithHttpClient() async {
     
     // Test credentials
     final body = jsonEncode({
-      'email': 'v_ismayilov@yahoo.com',
-      'password': 'Vusal135',
+      'email': 'http_test@example.com',
+      'password': 'TestPassword123',
     });
     request.write(body);
     
